@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using Newtonsoft.Json.Linq;
+using System.Text.Json;
 using Scaffolder.Models;
 
 namespace Scaffolder.Scaffold
@@ -40,9 +40,8 @@ namespace Scaffolder.Scaffold
                 if (!scaffolder.ModelExists(model)) return;
 
                 // Getting the actually dictionary of the data 
-                var keys = ((JObject)scaffolder.Configurations)
-                    .Children().Select(x => x.Path).Where(x => x != "Models")
-                    .ToList();
+                var keys = scaffolder.Configurations.RootElement
+                            .EnumerateObject().Where(x => x.Name != "Models").Select(x => x.Name).ToList();
 
                 // TODO Code logic here
                 keys.ForEach(scaffold =>

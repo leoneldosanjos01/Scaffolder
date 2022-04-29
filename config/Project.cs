@@ -1,7 +1,7 @@
 using System;
 using System.IO;
 using System.Linq;
-using Newtonsoft.Json.Linq;
+using System.Text.Json;
 
 namespace Scaffolder
 {
@@ -29,8 +29,8 @@ namespace Scaffolder
         public string UserSelectedOption(string header)
         {
             // Getting the actually dictionary of the data 
-            var keys = ((JObject)this.GetScaffolders().Configurations)
-                .Children().Select(x => x.Path).Where(x => x != "Models").ToList();
+            var keys = this.GetScaffolders().Configurations.RootElement
+                            .EnumerateObject().Where(x => x.Name != "Models").Select(x => x.Name).ToList();
             
             // Extra Options
             keys.Add("RunAll");

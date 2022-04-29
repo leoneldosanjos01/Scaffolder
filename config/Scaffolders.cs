@@ -1,6 +1,6 @@
 using System.IO;
 using System.Linq;
-using Newtonsoft.Json;
+using System.Text.Json;
 using Scaffolder.Models;
 using System.Collections.Generic;
 using System;
@@ -10,12 +10,12 @@ namespace Scaffolder
     public class Scaffolders
     {
         public List<DbModels> Models { get; set; }
-        public dynamic Configurations { get; internal set; } = new object();
+        public JsonDocument Configurations { get; }
 
         public Scaffolders(string content)
         {
             // Building the content
-            this.Configurations = JsonConvert.DeserializeObject<dynamic>(content);
+            this.Configurations = JsonDocument.Parse(content);
 
             // Loading the models
             this.Models = Directory.GetFiles(this.Get("Models")?.FirstOrDefault().DbModels).Select(s =>
@@ -31,12 +31,13 @@ namespace Scaffolder
 
         public List<Configuration> Get(string key)
         {
+            
             try
             {
                 // Creating the object
-                return JsonConvert.DeserializeObject<List<Configuration>>(
+                return JsonSerializer.Deserialize<List<Configuration>>(
                     // Accessing the data
-                    this.Configurations[key].ToString()
+                    this.Configurations.RootElement.GetProperty(key).GetString()
                 );
             }
             catch (System.Exception ex)

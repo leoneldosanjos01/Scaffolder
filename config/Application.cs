@@ -5,7 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
-using Newtonsoft.Json;
+using System.Text.Json;
 
 namespace Scaffolder
 {
@@ -165,8 +165,7 @@ namespace Scaffolder
                             }
                     }
                 });
-
-                var content = JsonConvert.SerializeObject(this, Formatting.Indented);
+                string content = JsonSerializer.Serialize(this, new JsonSerializerOptions { WriteIndented = true });
 
                 File.WriteAllText(configFilePath, content);
                 var dir = Directory.CreateDirectory(Path.Combine("apps", typedLine));
@@ -205,18 +204,18 @@ namespace Scaffolder
             Logger.Log("Loading the configurations...");
             if (!File.Exists(configFilePath))
             {
-                var content = JsonConvert.SerializeObject(new
+                var content = JsonSerializer.Serialize(new
                 {
                     Name = "Scaffolder",
                     Version = "1.1.0",
                     Applications = new { }
-                }, Formatting.Indented);
+                }, new JsonSerializerOptions { WriteIndented = true });
 
                 File.WriteAllText(configFilePath, content);
             }
 
             var configContent = File.ReadAllText(configFilePath);
-            var config = JsonConvert.DeserializeObject<Application>(configContent);
+            var config = JsonSerializer.Deserialize<Application>(configContent);
             var applicationType = typeof(Application);
 
             // Setting all the values in the main object
@@ -245,7 +244,7 @@ namespace Scaffolder
                 return null;
             }
 
-            var project = (Project)JsonConvert.DeserializeObject<Project>(
+            var project = JsonSerializer.Deserialize<Project>(
                 this.Applications[appKey].ToString()
             );
 
